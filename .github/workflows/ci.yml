@@ -6,7 +6,7 @@ on:
   
 env:
   REGISTRY: docker.io/ashwini73
-  IMAGE_NAME: spring-petclinic
+  IMAGE_NAME: spring-petclinic-1
 
 jobs:
           
