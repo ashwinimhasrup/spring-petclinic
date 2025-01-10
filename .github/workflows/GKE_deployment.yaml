@@ -14,6 +14,8 @@ on:
 env:
   REGISTRY: docker.io/ashwini73
   IMAGE_NAME: spring-petclinic-1
+  GKE_CLUSTER: test-gke
+  GKE_ZONE: us-east1-b
 
 jobs:
   deploy_to_gke:
@@ -25,25 +27,25 @@ jobs:
           IMAGE_TAG="${{ github.event.workflow_run.outputs.image_tag }}"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
-      - name: Set up GCP credentials
-        uses: google-github-actions/auth@v1
+      - name: Set up gcloud Cloud SDK environment
+        uses: 'google-github-actions/setup-gcloud@v2'
         with:
-          credentials_json: ${{ secrets.GKE_KEY }}
+          service_account_key: ${{ secrets.GKE_KEY }}
+          project_id: platform-infra
+      
+      - run: |-
+          gcloud --quiet auth configure-docker
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v2
         with:
-          version: v1.26.0
-
-      - name: Set up GCP credentials
-        run: |
-          echo "${{ secrets.GKE_KEY }}" | sed 's/\\n/\/g' > /tmp/gcp-key.json
-          cat /tmp/gcp-key.json
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-
-      - name: Configure kubectl
-        run: |
-          gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+          credentials: ${{ secrets.GKE_KEY }}
+          
+      # - name: Configure kubectl
+      #   run: |
+      #     gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
 
       - name: Deploy to GKE
         run: |
