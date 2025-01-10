@@ -36,10 +36,13 @@ jobs:
           version: v1.26.0
 
       - name: Export GOOGLE_APPLICATION_CREDENTIALS
-        run: echo "${{ secrets.GKE_KEY }}" > /tmp/gcp-key.json && export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+        run: |
+          echo "${{ secrets.GKE_KEY }}" > /tmp/gcp-key.json 
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
 
       - name: Configure kubectl
         run: |
+          gcloud auth activate-service-account --key-file=/path/to/key.json
           gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
 
       - name: Deploy to GKE
