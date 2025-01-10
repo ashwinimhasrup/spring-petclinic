@@ -8,8 +8,7 @@ env:
   REGISTRY: docker.io/ashwini73
   IMAGE_NAME: spring-petclinic-1
 
-jobs:
-          
+jobs:          
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
