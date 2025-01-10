@@ -1,0 +1,46 @@
+name: Deploy to GKE
+
+on:
+  workflow_run:
+    workflows:
+      - Build and Push Docker Image
+    types:
+      - completed
+
+env:
+  REGISTRY: docker.io/ashwini73
+  IMAGE_NAME: spring-petclinic-1
+
+jobs:
+  deploy_to_gke:
+    name: Deploy to GKE
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Image Tag
+        uses: actions/download-artifact@v3
+        with:
+          name: image-info
+        id: image
+
+      - name: Extract Image Tag
+        run: |
+          IMAGE_TAG=$(cat IMAGE_TAG)
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: Set up GCP credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GKE_KEY }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.26.0
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
+
+      - name: Update Deployment Image
+        run: |
+          kubectl set image deployment/spring-petclinic spring-petclinic=${{ env.IMAGE_TAG }}
