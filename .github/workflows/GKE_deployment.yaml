@@ -33,6 +33,11 @@ jobs:
           service_account_key: ${{ secrets.GKE_KEY }}
           project_id: platform-infra
       
+      - name: Set up GCP credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GKE_KEY }}
+          
       - run: |-
           gcloud --quiet auth configure-docker
 
@@ -42,6 +47,7 @@ jobs:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_KEY }}
+          project_id: platform-infra 
           
       # - name: Configure kubectl
       #   run: |
