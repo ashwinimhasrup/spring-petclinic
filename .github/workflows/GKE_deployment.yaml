@@ -41,17 +41,17 @@ jobs:
       - run: |-
           gcloud --quiet auth configure-docker
 
-      - name: Get GKE Credentials
-        uses: google-github-actions/get-gke-credentials@v2
-        with:
-          cluster_name: ${{ env.GKE_CLUSTER }}
-          location: ${{ env.GKE_ZONE }}
-          credentials: ${{ secrets.GKE_KEY }}
-          project_id: platform-infra 
+      # - name: Get GKE Credentials
+      #   uses: google-github-actions/get-gke-credentials@v2
+      #   with:
+      #     cluster_name: ${{ env.GKE_CLUSTER }}
+      #     location: ${{ env.GKE_ZONE }}
+      #     credentials: ${{ secrets.GKE_KEY }}
+      #     project_id: platform-infra 
           
-      # - name: Configure kubectl
-      #   run: |
-      #     gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials test-gke --zone us-east1-b --project platform-infra
 
       - name: Deploy to GKE
         run: |
